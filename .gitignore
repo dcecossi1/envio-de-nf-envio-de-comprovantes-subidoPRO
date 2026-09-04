@@ -1,0 +1,14 @@
+# Segredos e dados de cliente — nada disso vai pro Git
+.env
+.google-token.json
+destinatarios.csv
+registro/
+notas/
+*.pdf
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Sistema
+.DS_Store
