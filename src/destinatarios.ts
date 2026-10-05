@@ -1,3 +1,7 @@
+import { existsSync, readFileSync } from "node:fs";
+import { expandirCaminho, type Config } from "./config.js";
+import { lerCsv } from "./csv.js";
+import { lerAbaComoCsv } from "./google.js";
 import { somenteDigitos } from "./nfse.js";
 
 /**
@@ -53,4 +57,21 @@ export function lerDestinatarios(linhas: string[][]): Destinatario[] {
     });
   }
   return saida;
+}
+
+/** Lê a lista da planilha do Google (se PLANILHA_ID estiver no .env) ou do CSV local. */
+export async function carregarDestinatarios(
+  config: Config,
+  accessToken: () => Promise<string>,
+): Promise<Destinatario[]> {
+  if (config.planilhaId) {
+    return lerDestinatarios(
+      lerCsv(await lerAbaComoCsv(await accessToken(), config.planilhaId, config.planilhaGid)),
+    );
+  }
+  const caminho = expandirCaminho(config.destinatariosCsv);
+  if (!existsSync(caminho)) {
+    throw new Error(`não achei ${caminho} — copie o destinatarios.exemplo.csv ou preencha PLANILHA_ID no .env`);
+  }
+  return lerDestinatarios(lerCsv(readFileSync(caminho, "utf8")));
 }

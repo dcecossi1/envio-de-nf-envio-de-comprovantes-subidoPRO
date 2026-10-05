@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { homedir } from "node:os";
+import { join, resolve } from "node:path";
 import "dotenv/config";
 
 export type Config = {
@@ -49,4 +50,8 @@ export function lerToken(): Token {
     throw new Error("conta Google não autorizada ainda — rode: npm run autorizar");
   }
   return JSON.parse(readFileSync(ARQUIVO_TOKEN, "utf8")) as Token;
+}
+
+export function expandirCaminho(p: string): string {
+  return p.startsWith("~") ? join(homedir(), p.slice(1)) : resolve(p);
 }

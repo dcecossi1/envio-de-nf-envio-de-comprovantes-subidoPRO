@@ -1,13 +1,16 @@
 {
   "name": "envio-nfse-por-email",
   "version": "1.0.0",
-  "description": "Envia notas fiscais de serviço (NFS-e) por e-mail para o cliente, com o link da cobrança do Asaas no corpo e o PDF em anexo.",
+  "description": "Envia notas fiscais de serviço (NFS-e) por e-mail com o link da cobrança do Asaas, e baixa os comprovantes de pagamento organizados por cliente e mês.",
   "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "autorizar": "tsx scripts/autorizar.ts",
     "enviar": "tsx scripts/enviar.ts",
+    "comprovantes": "tsx scripts/comprovantes.ts",
     "checar": "tsc --noEmit"
   },
   "dependencies": {

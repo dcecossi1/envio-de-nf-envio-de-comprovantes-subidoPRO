@@ -24,6 +24,8 @@ export type AsaasCobranca = {
   billingType: string;
   invoiceUrl: string; // link da fatura que o cliente abre
   description: string | null;
+  paymentDate: string | null; // AAAA-MM-DD, quando o cliente pagou
+  transactionReceiptUrl: string | null; // página pública do comprovante (só em cobrança paga)
   deleted: boolean;
 };
 
@@ -82,6 +84,15 @@ export class Asaas {
     return cobrancas.filter((p) => !p.deleted);
   }
 
+  /** Cobranças PAGAS no intervalo (data de pagamento, AAAA-MM-DD, inclusiva). */
+  async listarPagas(de: string, ate: string): Promise<AsaasCobranca[]> {
+    const pagas = await this.todasAsPaginas<AsaasCobranca>("/payments", {
+      "paymentDate[ge]": de,
+      "paymentDate[le]": ate,
+    });
+    return pagas.filter((p) => !p.deleted && p.paymentDate);
+  }
+
   async listarDocumentos(cobrancaId: string): Promise<AsaasDocumento[]> {
     const docs = await this.todasAsPaginas<AsaasDocumento>(`/payments/${cobrancaId}/documents`, {});
     return docs.filter((d) => !d.deleted);
@@ -102,4 +113,25 @@ export class Asaas {
       body: form,
     });
   }
+}
+
+/**
+ * PDF do comprovante de pagamento.
+ *
+ * A API não devolve o PDF: devolve `transactionReceiptUrl`, uma página HTML
+ * pública com o botão "Baixar pdf" (`/transactionReceipt/pdf/<id>`). O link do
+ * PDF é lido dessa página. Se o Asaas mudar a página, isto falha com erro
+ * explícito — nunca salva HTML com nome de .pdf.
+ */
+export async function baixarComprovante(transactionReceiptUrl: string): Promise<Buffer> {
+  const pagina = await fetch(transactionReceiptUrl);
+  if (!pagina.ok) throw new Error(`página do comprovante: HTTP ${pagina.status}`);
+  const caminho = /href="(\/transactionReceipt\/pdf\/[^"]+)"/.exec(await pagina.text())?.[1];
+  if (!caminho) throw new Error("link do PDF não encontrado na página do comprovante (o Asaas mudou a página?)");
+  const resp = await fetch(new URL(caminho, transactionReceiptUrl));
+  const pdf = Buffer.from(await resp.arrayBuffer());
+  if (!resp.ok || pdf.subarray(0, 4).toString() !== "%PDF") {
+    throw new Error(`o comprovante não veio como PDF (HTTP ${resp.status}, ${resp.headers.get("content-type")})`);
+  }
+  return pdf;
 }

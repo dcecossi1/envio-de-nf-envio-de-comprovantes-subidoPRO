@@ -15,14 +15,12 @@
  *   --ignorar-valor             envia mesmo se o valor da nota diferir do da cobrança
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { Asaas, COBRANCA_EM_ABERTO, type AsaasCliente, type AsaasCobranca } from "../src/asaas.js";
-import { ARQUIVO_REGISTRO, lerConfig, lerToken, type Config, type Token } from "../src/config.js";
-import { lerCsv } from "../src/csv.js";
-import { lerDestinatarios, type Destinatario } from "../src/destinatarios.js";
-import { ESCOPO_ENVIO, enviarEmail, lerAbaComoCsv, renovarAccessToken } from "../src/google.js";
+import { ARQUIVO_REGISTRO, expandirCaminho, lerConfig, lerToken, type Token } from "../src/config.js";
+import { carregarDestinatarios, type Destinatario } from "../src/destinatarios.js";
+import { ESCOPO_ENVIO, enviarEmail, renovarAccessToken } from "../src/google.js";
 import { competenciaMes, formatarDocumento, lerDanfse, type NotaFiscal } from "../src/nfse.js";
 import { Registro } from "../src/registro.js";
 
@@ -85,10 +83,6 @@ function simplificar(s: string): string {
     .trim();
 }
 
-function expandir(p: string): string {
-  return p.startsWith("~") ? join(homedir(), p.slice(1)) : resolve(p);
-}
-
 function reais(v: number): string {
   return `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -136,26 +130,10 @@ function tabela(cabecalho: string[], linhas: string[][]) {
   for (const l of linhas) console.log(fmt(l));
 }
 
-async function carregarDestinatarios(
-  config: Config,
-  accessToken: () => Promise<string>,
-): Promise<Destinatario[]> {
-  if (config.planilhaId) {
-    return lerDestinatarios(
-      lerCsv(await lerAbaComoCsv(await accessToken(), config.planilhaId, config.planilhaGid)),
-    );
-  }
-  const caminho = expandir(config.destinatariosCsv);
-  if (!existsSync(caminho)) {
-    throw new Error(`não achei ${caminho} — copie o destinatarios.exemplo.csv ou preencha PLANILHA_ID no .env`);
-  }
-  return lerDestinatarios(lerCsv(readFileSync(caminho, "utf8")));
-}
-
 async function main() {
   const o = lerArgs(process.argv.slice(2));
   const config = lerConfig();
-  const pasta = expandir(o.pasta);
+  const pasta = expandirCaminho(o.pasta);
 
   // A conta Google só é exigida quando o Google é realmente usado: para
   // enviar, ou para ler a planilha. Com destinatários em CSV, ver o plano

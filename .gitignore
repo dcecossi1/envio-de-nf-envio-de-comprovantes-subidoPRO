@@ -4,6 +4,7 @@
 destinatarios.csv
 registro/
 notas/
+comprovantes/
 *.pdf
 
 # Node

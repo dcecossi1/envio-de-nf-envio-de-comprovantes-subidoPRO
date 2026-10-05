@@ -1,5 +1,7 @@
 # Envio de NFS-e por e-mail com o link da cobrança do Asaas
 
+> Também baixa os comprovantes de pagamento do Asaas, organizados por cliente e mês — veja [Comprovantes de pagamento](#comprovantes-de-pagamento).
+
 Todo mês a mesma tarefa: emitir as notas fiscais de serviço, achar a cobrança
 de cada cliente e mandar um e-mail com o PDF anexado e o link para pagar. Este
 projeto faz isso em um comando, sem abrir o Gmail e sem copiar link nenhum.
@@ -189,6 +191,59 @@ Cada envio é anotado em `registro/envios.json`. Rodar o mesmo comando de novo
 mostra as notas já enviadas como `já enviada em ...` e não manda nada — dá para
 emitir uma nota que faltou, rodar outra vez e só ela sair.
 
+## Comprovantes de pagamento
+
+Para cada cobrança paga no Asaas, baixa o comprovante em PDF e salva tudo numa
+pasta só, com o nome do cliente e o mês em que ele pagou:
+
+```
+comprovantes/
+  Comprovante Empresa Exemplo 09-2026.pdf
+  Comprovante Outra Empresa 09-2026.pdf
+  Comprovante Outra Empresa 10-2026.pdf
+```
+
+```bash
+npm run comprovantes                           # mês atual e o anterior
+npm run comprovantes -- --mes 2026-09          # só setembro de 2026
+npm run comprovantes -- --pasta ~/Comprovantes # salvar em outra pasta
+```
+
+- **O mês é o do pagamento**, não o do vencimento. Cobrança que venceu em
+  setembro e foi paga em outubro sai como `10-2026`.
+- **Sem `--mes`, o mês anterior entra junto.** Assim quem pagou atrasado depois
+  da última rodada não fica de fora.
+- **Rodar de novo não duplica.** Arquivo que já existe é pulado. Se o mesmo
+  cliente pagar duas vezes no mesmo mês, o segundo vira `... (2).pdf`.
+- **O nome vem da sua lista de destinatários**, casado pelo CNPJ — o nome
+  cadastrado no Asaas às vezes vem truncado. Cliente fora da lista usa o nome do
+  Asaas, e sem lista nenhuma o download funciona do mesmo jeito.
+- A pasta `comprovantes/` está no `.gitignore`.
+
+Usa só leitura de clientes e de cobranças na chave do Asaas. A API não entrega
+o PDF diretamente: entrega o link da página pública do comprovante, e o PDF sai
+do botão "Baixar pdf" dessa página. Se o Asaas mudar a página, o comando falha
+com uma mensagem clara em vez de salvar um arquivo errado.
+
+### Rodar todo mês sozinho
+
+Exemplo: todo dia 25 às 9h. Ajuste o caminho do projeto.
+
+**macOS e Linux** (`crontab -e`):
+
+```
+0 9 25 * * cd /caminho/para/envio-nfse-por-email && npm run --silent comprovantes >> comprovantes.log 2>&1
+```
+
+No macOS, o `cron` precisa de **Acesso Total ao Disco** (Ajustes do Sistema →
+Privacidade e Segurança) se a pasta de destino for Downloads ou Documentos.
+
+**Windows** (Agendador de Tarefas): ação "Iniciar um programa", programa
+`cmd.exe`, argumentos `/c cd /d C:\caminho\para\envio-nfse-por-email && npm run comprovantes`.
+
+O computador precisa estar ligado no horário. O comando sai com código 1 se
+algum comprovante falhar, o que permite plugar um aviso por e-mail ou chat.
+
 ## Opções
 
 | Opção | Para que serve |
@@ -255,6 +310,7 @@ src/
 scripts/
   autorizar.ts     autorização da conta Google (uma vez)
   enviar.ts        plano e envio
+  comprovantes.ts  download dos comprovantes de pagamento
 ```
 
 ## Limitações conhecidas
