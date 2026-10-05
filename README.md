@@ -1,4 +1,6 @@
-# Envio de NFS-e por e-mail com o link da cobrança do Asaas
+# Envio de NF + envio de comprovantes SubidoPRO
+
+Envio de NFS-e por e-mail com o link da cobrança do Asaas, download dos comprovantes de pagamento e envio dos recebimentos para a Liga Subido PRO.
 
 > Também baixa os comprovantes de pagamento do Asaas, organizados por cliente e mês — veja [Comprovantes de pagamento](#comprovantes-de-pagamento) — e prepara o envio desses recebimentos para a Liga Subido PRO — veja [Envio para a Liga Subido PRO](#envio-para-a-liga-subido-pro).
 
@@ -49,8 +51,8 @@ adaptar, mexa em `src/nfse.ts` — é o único arquivo que sabe o formato da not
 ### 1. Baixar e instalar
 
 ```bash
-git clone https://github.com/SEU-USUARIO/envio-nfse-por-email.git
-cd envio-nfse-por-email
+git clone https://github.com/SEU-USUARIO/envio-de-nf-envio-de-comprovantes-subidoPRO.git
+cd envio-de-nf-envio-de-comprovantes-subidoPRO
 npm install
 ```
 
@@ -232,14 +234,14 @@ Exemplo: todo dia 25 às 9h. Ajuste o caminho do projeto.
 **macOS e Linux** (`crontab -e`):
 
 ```
-0 9 25 * * cd /caminho/para/envio-nfse-por-email && npm run --silent comprovantes >> comprovantes.log 2>&1
+0 9 25 * * cd /caminho/para/envio-de-nf-envio-de-comprovantes-subidoPRO && npm run --silent comprovantes >> comprovantes.log 2>&1
 ```
 
 No macOS, o `cron` precisa de **Acesso Total ao Disco** (Ajustes do Sistema →
 Privacidade e Segurança) se a pasta de destino for Downloads ou Documentos.
 
 **Windows** (Agendador de Tarefas): ação "Iniciar um programa", programa
-`cmd.exe`, argumentos `/c cd /d C:\caminho\para\envio-nfse-por-email && npm run comprovantes`.
+`cmd.exe`, argumentos `/c cd /d C:\caminho\para\envio-de-nf-envio-de-comprovantes-subidoPRO && npm run comprovantes`.
 
 O computador precisa estar ligado no horário. O comando sai com código 1 se
 algum comprovante falhar, o que permite plugar um aviso por e-mail ou chat.

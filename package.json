@@ -1,7 +1,7 @@
 {
-  "name": "envio-nfse-por-email",
+  "name": "envio-de-nf-envio-de-comprovantes-subidopro",
   "version": "1.0.0",
-  "description": "Envia notas fiscais de serviço (NFS-e) por e-mail com o link da cobrança do Asaas, e baixa os comprovantes de pagamento organizados por cliente e mês.",
+  "description": "Envia NFS-e por e-mail com o link da cobrança do Asaas, baixa os comprovantes de pagamento e prepara o envio dos recebimentos para a Liga Subido PRO.",
   "license": "MIT",
   "type": "module",
   "engines": {
