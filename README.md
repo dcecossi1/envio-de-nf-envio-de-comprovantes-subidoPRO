@@ -229,12 +229,12 @@ com uma mensagem clara em vez de salvar um arquivo errado.
 
 ### Rodar todo mês sozinho
 
-Exemplo: todo dia 25 às 9h. Ajuste o caminho do projeto.
+Exemplo: todo dia 26 às 9h. Ajuste o caminho do projeto.
 
 **macOS e Linux** (`crontab -e`):
 
 ```
-0 9 25 * * cd /caminho/para/envio-de-nf-envio-de-comprovantes-subidoPRO && npm run --silent comprovantes >> comprovantes.log 2>&1
+0 9 26 * * cd /caminho/para/envio-de-nf-envio-de-comprovantes-subidoPRO && npm run --silent comprovantes >> comprovantes.log 2>&1
 ```
 
 No macOS, o `cron` precisa de **Acesso Total ao Disco** (Ajustes do Sistema →
