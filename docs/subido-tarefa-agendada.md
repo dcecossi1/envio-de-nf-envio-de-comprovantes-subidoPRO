@@ -60,9 +60,9 @@ Para cada item de "enviar", um de cada vez:
    pelo clienteSubido:
    const espera=(ms)=>new Promise(r=>setTimeout(r,ms));const combo=()=>[...document.querySelectorAll('[role=combobox]')];const alvo='ALVO';if(combo()[0].getAttribute('aria-expanded')!=='true'){combo()[0].click();await espera(900);}let opt;for(let i=0;i<40&&!opt;i++){opt=[...document.querySelectorAll('[role=option]')].find(o=>o.innerText.trim()===alvo);if(!opt){const lb=document.querySelector('[role=listbox]');if(!lb)break;lb.scrollTop+=200;await espera(150);}}if(!opt)throw new Error('cliente não achado');opt.scrollIntoView({block:'center'});await espera(200);opt.click();await espera(2000);combo()[1].click();await espera(1200);({cliente:combo()[0].innerText.trim(),contratos:[...document.querySelectorAll('[role=option]')].map(o=>o.innerText.trim())})
    Confirme que "cliente" é exatamente o clienteSubido; se não for, pule o item.
-3. Contrato: escolha o que cobre a data do pagamento (texto
-   "dd/mm/aaaa - dd/mm/aaaa"); se houver mais de um, o de início mais recente.
-   Se nenhum cobrir a data, pule com o motivo "contrato vencido no Subido".
+3. Contrato (texto "dd/mm/aaaa - dd/mm/aaaa"): com um contrato só, use ele —
+   a data de fim cadastrada não impede o envio. Com mais de um, use o que
+   cobre a data do pagamento; se nenhum cobrir, o de início mais recente.
    Clique na opção pelo texto exato.
 4. Clique em "Continuar". Confira o nome do cliente no topo; se diferente, saia
    pelo link "Início" do menu lateral e pule o item.

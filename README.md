@@ -329,7 +329,7 @@ depois. A tarefa:
 - baixa os comprovantes do mês;
 - confere se o dia está dentro da janela — se não estiver, só avisa;
 - para cada pendente, preenche o formulário no seu Chrome, escolhendo o
-  contrato que cobre a data do pagamento (contrato vencido = pulado e avisado);
+  contrato do cliente (com mais de um, o que cobre a data do pagamento);
 - depois de cada envio concluído, roda `npm run subido -- registrar <id>`, que
   anota em `registro/subido.json` — **é essa anotação que impede reenvio**;
 - termina com uma notificação do que foi enviado e do que ficou de fora.
@@ -350,8 +350,9 @@ e de navegador uma vez e as rodadas seguintes não param esperando.
 - **O upload do Claude in Chrome só aceita arquivos de pastas que a sessão pode
   ler.** Por isso `pendentes --copiar-para <pasta>` copia os PDFs para a pasta
   de rascunho da sessão antes do anexo.
-- **Contrato vencido no Subido** faz o cliente ser pulado até você renovar em
-  Clientes → Adicionar contrato.
+- **A data de fim do contrato no Subido não impede o envio.** Com um contrato
+  só, ele é usado. Se você prefere pular contrato vencido, troque o passo 3 do
+  modelo da tarefa.
 - O app do Claude e o Chrome precisam estar abertos no horário. Se estiverem
   fechados, a tarefa roda quando o app abrir de novo.
 
