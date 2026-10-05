@@ -66,8 +66,8 @@ Para cada item de "enviar", um de cada vez:
    Clique na opção pelo texto exato.
 4. Clique em "Continuar". Confira o nome do cliente no topo; se diferente, saia
    pelo link "Início" do menu lateral e pule o item.
-5. Preencha: "Valor do recebimento" = só os dígitos (1.900,00 → 190000);
-   "Data do recebimento" = só os dígitos (10/10/2026 → 10102026); "Sobre o
+5. Preencha: "Valor do recebimento" = só os dígitos (1.234,56 → 123456);
+   "Data do recebimento" = só os dígitos (15/03/2027 → 15032027); "Sobre o
    envio" = titulo exato. Anexe o PDF de "arquivo" com file_upload no campo
    "Comprovante de Pagamento" e confirme "Arquivo adicionado".
 6. Screenshot: confira valor, data, título e arquivo. Se algo estiver errado,

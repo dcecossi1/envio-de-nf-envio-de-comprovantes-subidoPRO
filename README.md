@@ -159,12 +159,12 @@ Pasta /home/voce/notas: 9 PDF(s), 9 nota(s) da competência 09/2026.
 
 Cliente          NF   Valor        Cobrança                   Para                 Situação
 ---------------  ---  -----------  -------------------------  -------------------  ----------------------------------
-Empresa Exemplo  100  R$ 3.500,00  10/09 R$ 3.500,00 PENDING  financeiro@exe.com   pronto
-Outra Empresa    101  R$ 1.900,00  10/09 R$ 1.900,00 PENDING  contas@outra.com     pronto
-Terceira Ltda    107  R$ 2.000,00  —                          fin@terceira.com     sem cliente no Asaas com esse CNPJ
+Empresa Exemplo  12   R$ 1.234,56  10/09 R$ 1.234,56 PENDING  financeiro@exe.com   pronto
+Outra Empresa    13   R$ 2.500,00  10/09 R$ 2.500,00 PENDING  contas@outra.com     pronto
+Terceira Ltda    14   R$ 980,00    —                            fin@terceira.com     sem cliente no Asaas com esse CNPJ
 
 Cobranças vencendo em 09/2026 sem nota na pasta:
-  - Quarta Empresa: 15/09 R$ 1.650,00 PENDING
+  - Quarta Empresa: 15/09 R$ 750,00 PENDING
 
 2 pronta(s) para enviar. Nada foi enviado — use --teste ou --enviar.
 ```
