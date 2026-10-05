@@ -18,14 +18,20 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { Asaas, baixarComprovante, type AsaasCobranca } from "../src/asaas.js";
+import { Asaas, baixarComprovante } from "../src/asaas.js";
+import {
+  PASTA_COMPROVANTES,
+  arquivosDosComprovantes,
+  destinatariosPorCnpj,
+  nomeDoCliente,
+} from "../src/comprovantes.js";
 import { expandirCaminho, lerConfig, lerToken } from "../src/config.js";
-import { carregarDestinatarios, type Destinatario } from "../src/destinatarios.js";
+import { carregarDestinatarios } from "../src/destinatarios.js";
 import { renovarAccessToken } from "../src/google.js";
 
 function lerArgs(argv: string[]) {
   let mes: string | null = null;
-  let pasta = "./comprovantes";
+  let pasta = PASTA_COMPROVANTES;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
     const valor = () => {
@@ -58,11 +64,6 @@ function intervalo(mes: string | null): { de: string; ate: string } {
   };
 }
 
-/** Tira o que macOS e Windows não aceitam em nome de arquivo. */
-function nomeDeArquivo(s: string): string {
-  return s.replace(/[/\\:*?"<>|]/g, "-").replace(/\s+/g, " ").trim();
-}
-
 async function main() {
   const o = lerArgs(process.argv.slice(2));
   const config = lerConfig();
@@ -72,33 +73,17 @@ async function main() {
   const pagas = await asaas.listarPagas(de, ate);
   const clientes = new Map((await asaas.listarClientes()).map((c) => [c.id, c]));
 
-  // A lista de destinatários só serve para dar nome bonito; se ela não
-  // existir, o nome do Asaas resolve e o download segue.
-  let porCnpj = new Map<string, Destinatario>();
-  try {
-    const lista = await carregarDestinatarios(config, async () => {
+  const porCnpj = await destinatariosPorCnpj(() =>
+    carregarDestinatarios(config, async () => {
       const t = lerToken();
       return renovarAccessToken({
         clientId: config.googleClientId,
         clientSecret: config.googleClientSecret,
         refreshToken: t.refresh_token,
       });
-    });
-    porCnpj = new Map(lista.filter((d) => d.cnpj).map((d) => [d.cnpj!, d]));
-  } catch (e) {
-    console.log(`Aviso: lista de destinatários indisponível (${e instanceof Error ? e.message : String(e)}); usando nomes do Asaas.`);
-  }
-
-  const nomeCliente = (p: AsaasCobranca) => {
-    const c = clientes.get(p.customer);
-    const cnpj = (c?.cpfCnpj ?? "").replace(/\D/g, "");
-    return porCnpj.get(cnpj)?.nome ?? c?.name ?? p.customer;
-  };
-
-  // Ordem estável (data de pagamento, id): é o que faz o " (2)" de um segundo
-  // pagamento no mesmo mês cair sempre no mesmo arquivo, rodada após rodada.
-  pagas.sort((a, b) => (a.paymentDate ?? "").localeCompare(b.paymentDate ?? "") || a.id.localeCompare(b.id));
-  const vistos = new Map<string, number>();
+    }),
+  );
+  const arquivos = arquivosDosComprovantes(pagas, nomeDoCliente(clientes, porCnpj));
 
   mkdirSync(o.pasta, { recursive: true });
   const baixados: string[] = [];
@@ -106,11 +91,7 @@ async function main() {
   const falhas: string[] = [];
 
   for (const p of pagas) {
-    const mes = p.paymentDate!.slice(0, 7);
-    const base = nomeDeArquivo(`Comprovante ${nomeCliente(p)} ${mes.slice(5)}-${mes.slice(0, 4)}`);
-    const n = (vistos.get(base) ?? 0) + 1;
-    vistos.set(base, n);
-    const arquivo = `${base}${n > 1 ? ` (${n})` : ""}.pdf`;
+    const arquivo = arquivos.get(p.id)!;
     const destino = join(o.pasta, arquivo);
 
     if (existsSync(destino)) {

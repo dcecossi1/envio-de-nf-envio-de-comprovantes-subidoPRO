@@ -1,6 +1,6 @@
 # Envio de NFS-e por e-mail com o link da cobrança do Asaas
 
-> Também baixa os comprovantes de pagamento do Asaas, organizados por cliente e mês — veja [Comprovantes de pagamento](#comprovantes-de-pagamento).
+> Também baixa os comprovantes de pagamento do Asaas, organizados por cliente e mês — veja [Comprovantes de pagamento](#comprovantes-de-pagamento) — e prepara o envio desses recebimentos para a Liga Subido PRO — veja [Envio para a Liga Subido PRO](#envio-para-a-liga-subido-pro).
 
 Todo mês a mesma tarefa: emitir as notas fiscais de serviço, achar a cobrança
 de cada cliente e mandar um e-mail com o PDF anexado e o link para pagar. Este
@@ -244,6 +244,117 @@ Privacidade e Segurança) se a pasta de destino for Downloads ou Documentos.
 O computador precisa estar ligado no horário. O comando sai com código 1 se
 algum comprovante falhar, o que permite plugar um aviso por e-mail ou chat.
 
+## Envio para a Liga Subido PRO
+
+Para quem participa da **Liga Subido PRO**, programa que pontua agências pelo
+faturamento comprovado de clientes. Cada recebimento de cliente **com
+contrato** vira um envio no site: cliente, contrato, valor, data, um título e o
+comprovante.
+
+O Subido não tem API pública e o login é seu, então o envio é feito **no seu
+navegador**, pela extensão Claude in Chrome, numa tarefa agendada do app do
+Claude. Este projeto entrega os dados de cada envio e anota o que já foi.
+
+### Como o site funciona
+
+1. **Novo envio** → escolha o **cliente** e o **contrato** → Continuar.
+2. Preencha **valor do recebimento**, **data do recebimento**, **sobre o
+   envio** (um título) e anexe o **comprovante** (JPG, PNG ou PDF, até 5 MB) →
+   Concluir.
+3. **Janela de envio: sábado 00h00 a quarta 23h59.** Quinta é validação,
+   sexta às 22h sai o resultado. A pontuação só entra depois de aprovado.
+4. Só pontuam os serviços aceitos (tráfego, criação de anúncios, sites, CRM,
+   rastreamento, social media e outros) — confira em "Serviços aceitos".
+
+### Passo a passo
+
+**1. Requisitos extras**
+
+- App desktop do Claude, com **tarefas agendadas** (seção Scheduled).
+- Extensão **[Claude in Chrome](https://chromewebstore.google.com/detail/fcoeoabgfenejglbffodgkkbkcdhcgfn)**
+  instalada e conectada com a mesma conta do app.
+- Você logado no Subido nesse Chrome.
+- Os comprovantes já funcionando (`npm run comprovantes`, seção anterior).
+
+**2. Ligue cada cliente do Asaas ao nome dele no Subido**
+
+```bash
+cp subido-clientes.exemplo.json subido-clientes.json
+```
+
+```json
+{
+  "clientes": {
+    "12345678000190": "Empresa Exemplo",
+    "98765432000110": "Outra Empresa Ltda",
+    "11122233344": null
+  }
+}
+```
+
+- A chave é o CPF/CNPJ do cliente no Asaas, só dígitos. O nome do Subido muda
+  de grafia em relação ao Asaas; o documento não.
+- O valor é o nome **exatamente** como aparece na lista de clientes em Novo
+  envio.
+- **Só entra quem tem contrato.** Cliente que paga mas não tem contrato fica
+  com `null`: ele é pulado de propósito e não aparece como problema.
+- Cliente que não está no arquivo aparece como "cliente novo — decidir se
+  entra". Assim ninguém novo é enviado sem você decidir.
+
+O arquivo fica fora do Git.
+
+**3. Diga a partir de quando os pagamentos entram**
+
+No `.env`, `SUBIDO_INICIO=2026-10-01` — o primeiro dia do mês que você **ainda
+não enviou à mão**. Pagamentos anteriores nunca entram, então não há risco de
+duplicar o que você já mandou.
+
+**4. Veja o que seria enviado**
+
+```bash
+npm run subido -- pendentes
+```
+
+Sai um JSON com `dentroDaJanela`, a lista `enviar` (cliente no Subido, valor,
+data, título no formato `Cliente - pagamento MM/AAAA` e o caminho do PDF) e a
+lista `pulados`, cada um com o motivo. Nada é enviado por este comando.
+
+**5. Crie a tarefa agendada**
+
+Siga **[docs/subido-tarefa-agendada.md](docs/subido-tarefa-agendada.md)**: é o
+texto completo da tarefa, com duas versões — **com confirmação** antes de cada
+"Concluir" (recomendada no começo) ou **sem confirmação**, se você revisa
+depois. A tarefa:
+
+- baixa os comprovantes do mês;
+- confere se o dia está dentro da janela — se não estiver, só avisa;
+- para cada pendente, preenche o formulário no seu Chrome, escolhendo o
+  contrato que cobre a data do pagamento (contrato vencido = pulado e avisado);
+- depois de cada envio concluído, roda `npm run subido -- registrar <id>`, que
+  anota em `registro/subido.json` — **é essa anotação que impede reenvio**;
+- termina com uma notificação do que foi enviado e do que ficou de fora.
+
+Uma data boa é o **dia 26**: os vencimentos do mês já passaram e, na maioria
+dos meses, o dia cai dentro da janela. Quando não cair, a tarefa avisa.
+
+**6. Rode uma vez antes do primeiro dia**
+
+No app, clique em **Run now** na tarefa. Você aprova as permissões de terminal
+e de navegador uma vez e as rodadas seguintes não param esperando.
+
+### Armadilhas já conhecidas
+
+- **A lista de clientes do formulário é virtualizada.** Clicar no item por
+  posição ou referência já selecionou o cliente vizinho. O modelo de tarefa
+  seleciona pelo texto exato e confere o nome de novo antes de preencher.
+- **O upload do Claude in Chrome só aceita arquivos de pastas que a sessão pode
+  ler.** Por isso `pendentes --copiar-para <pasta>` copia os PDFs para a pasta
+  de rascunho da sessão antes do anexo.
+- **Contrato vencido no Subido** faz o cliente ser pulado até você renovar em
+  Clientes → Adicionar contrato.
+- O app do Claude e o Chrome precisam estar abertos no horário. Se estiverem
+  fechados, a tarefa roda quando o app abrir de novo.
+
 ## Opções
 
 | Opção | Para que serve |
@@ -305,12 +416,16 @@ src/
   google.ts        renovação do token, envio pelo Gmail, export da planilha
   destinatarios.ts casamento por CNPJ entre nota e lista de e-mails
   registro.ts      registro do que já saiu (trava contra reenvio)
+  comprovantes.ts  nome dos arquivos de comprovante (usado pelos dois scripts)
   csv.ts           leitor de CSV
   config.ts        .env e arquivo de token
 scripts/
   autorizar.ts     autorização da conta Google (uma vez)
   enviar.ts        plano e envio
   comprovantes.ts  download dos comprovantes de pagamento
+  subido.ts        pendentes e registro dos envios para a Liga Subido PRO
+docs/
+  subido-tarefa-agendada.md  modelo da tarefa agendada que envia pelo navegador
 ```
 
 ## Limitações conhecidas

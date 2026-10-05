@@ -2,6 +2,7 @@
 .env
 .google-token.json
 destinatarios.csv
+subido-clientes.json
 registro/
 notas/
 comprovantes/

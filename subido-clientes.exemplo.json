@@ -1,0 +1,8 @@
+{
+  "_leia": "Copie para subido-clientes.json (fica fora do Git). Chave = CPF/CNPJ do cliente no Asaas, só dígitos. Valor = nome EXATO do cliente na Liga Subido PRO (como aparece em Novo envio). null = cliente sem contrato: fica de fora de propósito.",
+  "clientes": {
+    "12345678000190": "Empresa Exemplo",
+    "98765432000110": "Outra Empresa Ltda",
+    "11122233344": null
+  }
+}

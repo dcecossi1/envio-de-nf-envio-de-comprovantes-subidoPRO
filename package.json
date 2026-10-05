@@ -11,6 +11,7 @@
     "autorizar": "tsx scripts/autorizar.ts",
     "enviar": "tsx scripts/enviar.ts",
     "comprovantes": "tsx scripts/comprovantes.ts",
+    "subido": "tsx scripts/subido.ts",
     "checar": "tsc --noEmit"
   },
   "dependencies": {

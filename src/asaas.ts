@@ -84,6 +84,10 @@ export class Asaas {
     return cobrancas.filter((p) => !p.deleted);
   }
 
+  async buscarCobranca(id: string): Promise<AsaasCobranca> {
+    return this.chamar<AsaasCobranca>(`/payments/${encodeURIComponent(id)}`);
+  }
+
   /** Cobranças PAGAS no intervalo (data de pagamento, AAAA-MM-DD, inclusiva). */
   async listarPagas(de: string, ate: string): Promise<AsaasCobranca[]> {
     const pagas = await this.todasAsPaginas<AsaasCobranca>("/payments", {
